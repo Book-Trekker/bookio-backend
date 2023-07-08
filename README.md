@@ -35,7 +35,6 @@
 - api/v1/orders (POST)
 - api/v1/orders (GET)
 
-## Bonus Part
 
 #### Admin
 
