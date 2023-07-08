@@ -3,9 +3,9 @@ export const bookFilterableField = [
   'name',
   'author',
   'category',
-  'rating'
+  'rating',
 ]
 
-export const bookSearchableFields = ['name', 'author', 'category']
+export const bookSearchableFields = ['name', 'author', 'category', 'rating']
 
 export const PriceSearchableFields = ['maxPrice', 'minPrice']

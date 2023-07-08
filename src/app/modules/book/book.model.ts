@@ -24,6 +24,9 @@ const bookSchema = new Schema<IBook>(
       type: String,
       required: true,
     },
+    group: {
+      type: String,
+    },
   },
   {
     timestamps: true,

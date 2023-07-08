@@ -12,6 +12,7 @@ export type IBook = {
   discountTime?: number | string
   status: string
   seller: string
+  group?: string
 }
 
 export type IBookFilters = {

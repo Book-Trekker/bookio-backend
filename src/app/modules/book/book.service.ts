@@ -37,6 +37,17 @@ const createNewBook = async (
       )
     }
 
+    // Set the type field based on the book rating
+    if (payload.rating !== undefined) {
+      if (payload.rating >= 4.5) {
+        payload.group = 'bestSeller'
+      } else if (payload.rating >= 4) {
+        payload.group = 'featured'
+      } else if (payload.rating >= 3.5) {
+        payload.group = 'popular'
+      }
+    }
+
     const createdBook = await Book.create(payload)
     if (!createdBook) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create book')
@@ -156,7 +167,7 @@ const getAllBooks = async (
     sortConditions[sortBy] = sortOrder
   }
 
-  const whereConditions =
+  let whereConditions: any =
     andConditions.length > 0 ? { $and: andConditions } : {}
 
   const result = await Book.find(whereConditions)
