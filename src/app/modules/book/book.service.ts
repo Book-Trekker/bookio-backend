@@ -54,7 +54,7 @@ const getAllBooks = async (
   paginationOptions: IPaginationOptions,
   priceQuery: IPriceFilters
 ): Promise<IGenericResponse<IBook[]>> => {
-  const { searchTerm, ...filtersData } = filters
+  const { searchTerm, rating, ...filtersData } = filters
   // shortCut way
   const andConditions = []
 
@@ -98,6 +98,17 @@ const getAllBooks = async (
         },
       })),
     })
+
+  // rating filter
+  if (rating !== undefined) {
+    const maxRating = Number(rating)
+
+    if (!isNaN(maxRating)) {
+      andConditions.push({
+        rating: { $lte: maxRating },
+      })
+    }
+  }
 
   // exact filter
   if (Object.keys(filtersData).length) {

@@ -20,6 +20,10 @@ const bookSchema = new Schema<IBook>(
       required: true,
     },
     discountTime: { type: Schema.Types.Mixed },
+    seller: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,

@@ -11,12 +11,15 @@ export type IBook = {
   category: 'science' | 'adventure' | 'romance'
   discountTime?: number | string
   status: string
+  seller: string
 }
 
 export type IBookFilters = {
   searchTerm?: string
+  rating?: number
 }
 export type IPriceFilters = {
   maxPrice?: number
   minPrice?: number
 }
+
