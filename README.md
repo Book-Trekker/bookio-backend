@@ -1,4 +1,4 @@
-## Book_Trekker_Backend_API - Live Link:
+## Book_Trekker_Backend_API - Live Link: https://book-trekker-backend.vercel.app/
 
 ### Application Routes:
 
