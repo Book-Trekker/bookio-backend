@@ -21,6 +21,7 @@ const createOrder = async (
       throw new ApiError(httpStatus.BAD_REQUEST, 'Quantity is required')
     }
 
+    // check book reference id is valid or not
     const existingBook = await Book.findById(book)
     if (!existingBook) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid book reference ID')
@@ -41,15 +42,16 @@ const createOrder = async (
       throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid buyer reference ID')
     }
     // check existing order
-    const existingOrder = await Order.findOne(payload)
-    if (existingOrder) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Already purchased this book')
-    }
+    // const existingOrder = await Order.findOne(payload)
+    // if (existingOrder) {
+    //   throw new ApiError(httpStatus.BAD_REQUEST, 'Already purchased this book')
+    // }
 
     const bookPrice = existingBook.price
     const buyerBudget = existingBuyer.budget
     const sellerId = existingBook.seller
 
+    // check buyer have enough budget to purchase this book or not
     if (bookPrice * quantity > buyerBudget) {
       throw new ApiError(
         httpStatus.BAD_REQUEST,
@@ -57,6 +59,7 @@ const createOrder = async (
       )
     }
 
+    // start transaction for multiple actions
     const session = await mongoose.startSession()
     session.startTransaction()
 
