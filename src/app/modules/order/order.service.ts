@@ -2,12 +2,12 @@ import httpStatus from 'http-status'
 import ApiError from '../../../errors/ApiError'
 import { IOrder } from './order.interface'
 import Order from './order.model'
-import Cow from '../book/book.model'
 import mongoose from 'mongoose'
 import { User } from '../user/user.model'
 import { jwtHelpers } from '../../../helpers/jwtHelper'
 import config from '../../../config/config'
 import { Secret } from 'jsonwebtoken'
+import Book from '../book/book.model'
 
 const createOrder = async (
   payload: IOrder,
@@ -15,11 +15,20 @@ const createOrder = async (
   role: string
 ): Promise<IOrder> => {
   try {
-    const { cow, buyer } = payload
+    const { book, buyer, quantity } = payload
+    // check null or undefined for quantity
+    if (quantity === undefined) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Quantity is required')
+    }
 
-    const existingCow = await Cow.findById(cow)
-    if (!existingCow) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid cow reference ID')
+    const existingBook = await Book.findById(book)
+    if (!existingBook) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid book reference ID')
+    }
+
+    // Check if the book is in stock or stock out
+    if (existingBook.quantity < quantity) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Insufficient book quantity')
     }
 
     // Verify the buyer ID using userPhoneNumber and role
@@ -31,20 +40,20 @@ const createOrder = async (
     if (!existingBuyer) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid buyer reference ID')
     }
-
+    // check existing order
     const existingOrder = await Order.findOne(payload)
     if (existingOrder) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Already purchased this cow')
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Already purchased this book')
     }
 
-    const cowPrice = existingCow.price
+    const bookPrice = existingBook.price
     const buyerBudget = existingBuyer.budget
-    const sellerId = existingCow.seller
+    const sellerId = existingBook.seller
 
-    if (cowPrice > buyerBudget) {
+    if (bookPrice * quantity > buyerBudget) {
       throw new ApiError(
         httpStatus.BAD_REQUEST,
-        "You don't have sufficient funds to buy this cow"
+        "You don't have sufficient funds to buy these books"
       )
     }
 
@@ -52,29 +61,32 @@ const createOrder = async (
     session.startTransaction()
 
     try {
-      // Update cow's label to 'sold out'===-
-      existingCow.label = 'sold out'
-      await existingCow.save()
+      // Deduct the book quantity & handle book status -> stock | stock out
+      existingBook.quantity -= quantity
+      if (existingBook.quantity === 0) {
+        existingBook.status = 'stock out'
+      }
+      await existingBook.save()
 
-      // Deduct cow's cost from the buyer's budget
-      existingBuyer.budget -= cowPrice
+      // Deduct book cost from the buyer's budget
+      existingBuyer.budget -= bookPrice * quantity
       await existingBuyer.save()
 
-      // Increase seller's income by the cow's cost
+      // Increase seller's income by the book cost
       const existingSeller = await User.findById(sellerId)
       if (!existingSeller) {
         throw new Error('Seller not found')
       }
-      existingSeller.income += cowPrice
+      existingSeller.income += bookPrice * quantity
       await existingSeller.save()
 
       // Create the order
       const createdOrder = await Order.create(payload)
       const populatedOrder = await Order.findById(createdOrder._id)
-        .populate('cow')
+        .populate('book')
         .populate('buyer')
         .populate({
-          path: 'cow',
+          path: 'book',
           populate: {
             path: 'seller',
             model: 'User',
@@ -113,10 +125,10 @@ const getOrders = async (token: string): Promise<IOrder[]> => {
     if (role === 'admin') {
       // If the role is "admin", retrieve all orders
       orders = await Order.find({})
-        .populate('cow')
+        .populate('book')
         .populate('buyer')
         .populate({
-          path: 'cow',
+          path: 'book',
           populate: {
             path: 'seller',
             model: 'User',
@@ -134,17 +146,17 @@ const getOrders = async (token: string): Promise<IOrder[]> => {
       }
 
       orders = await Order.find({ buyer: buyer._id })
-        .populate('cow')
+        .populate('book')
         .populate('buyer')
         .populate({
-          path: 'cow',
+          path: 'book',
           populate: {
             path: 'seller',
             model: 'User',
           },
         })
     } else if (role === 'seller') {
-      // If the role is "seller", retrieve orders where the cow's seller's role and phoneNumber match
+      // If the role is "seller", retrieve orders where the book's seller's role and phoneNumber match
       const seller = await User.findOne({
         role: 'seller',
         phoneNumber: userPhoneNumber,
@@ -156,7 +168,7 @@ const getOrders = async (token: string): Promise<IOrder[]> => {
 
       orders = await Order.find({})
         .populate({
-          path: 'cow',
+          path: 'book',
           match: { seller: seller._id },
           populate: {
             path: 'seller',
@@ -191,10 +203,10 @@ const getSingleOrder = async (
     if (role === 'admin') {
       // If the role is "admin", retrieve the order without any conditions
       order = await Order.findById(id)
-        .populate('cow')
+        .populate('book')
         .populate('buyer')
         .populate({
-          path: 'cow',
+          path: 'book',
           populate: {
             path: 'seller',
             model: 'User',
@@ -212,17 +224,17 @@ const getSingleOrder = async (
       }
 
       order = await Order.findOne({ _id: id, buyer: buyer._id })
-        .populate('cow')
+        .populate('book')
         .populate('buyer')
         .populate({
-          path: 'cow',
+          path: 'book',
           populate: {
             path: 'seller',
             model: 'User',
           },
         })
     } else if (role === 'seller') {
-      // If the role is "seller", retrieve the order where the cow's seller's role and phoneNumber match
+      // If the role is "seller", retrieve the order where the book's seller's role and phoneNumber match
       const seller = await User.findOne({
         role: 'seller',
         phoneNumber: userPhoneNumber,
@@ -234,7 +246,7 @@ const getSingleOrder = async (
 
       order = await Order.findOne({ _id: id })
         .populate({
-          path: 'cow',
+          path: 'book',
           match: { seller: seller._id },
           populate: {
             path: 'seller',

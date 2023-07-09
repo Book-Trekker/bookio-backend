@@ -4,8 +4,9 @@ import { IOrder } from './order.interface'
 // Creating a order schema
 const orderSchema = new Schema<IOrder>(
   {
-    cow: { type: Schema.Types.ObjectId, required: true, ref: 'Cow' },
+    book: { type: Schema.Types.ObjectId, required: true, ref: 'Book' },
     buyer: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
+    quantity: { type: Number},
   },
   { timestamps: true }
 )
