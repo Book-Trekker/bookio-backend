@@ -65,7 +65,7 @@ const getAllBooks = async (
   paginationOptions: IPaginationOptions,
   priceQuery: IPriceFilters
 ): Promise<IGenericResponse<IBook[]>> => {
-  const { searchTerm, rating, ...filtersData } = filters
+  const { searchTerm, rating, group, ...filtersData } = filters
   // shortCut way
   const andConditions = []
 
@@ -157,6 +157,13 @@ const getAllBooks = async (
   //     ],
   //   },
   // ]
+
+  // Handle the "group" filter if provided
+  if (filters.group) {
+    andConditions.push({
+      group: filters.group,
+    })
+  }
 
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelper.calculatePagination(paginationOptions)
