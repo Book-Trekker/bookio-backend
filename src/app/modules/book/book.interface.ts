@@ -18,9 +18,9 @@ export type IBook = {
 export type IBookFilters = {
   searchTerm?: string
   rating?: number
+  group?: string
 }
 export type IPriceFilters = {
   maxPrice?: number
   minPrice?: number
 }
-
