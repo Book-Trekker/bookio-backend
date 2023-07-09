@@ -29,7 +29,7 @@ const createOrder: RequestHandler = catchAsync(
     sendResponse<IOrder>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Cow purchase successful!',
+      message: 'Book purchase successful!',
       data: result,
     })
   }
@@ -53,9 +53,9 @@ const getSingleOrder: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const id = req.params.id
     const token = req.headers.authorization
-    const cow = await OrderService.getSingleOrder(id, token as string)
+    const book = await OrderService.getSingleOrder(id, token as string)
 
-    if (!cow) {
+    if (!book) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Order not found')
     }
 
@@ -63,7 +63,7 @@ const getSingleOrder: RequestHandler = catchAsync(
       statusCode: httpStatus.OK,
       success: true,
       message: 'Order retrieved successfully!',
-      data: cow,
+      data: book,
     })
   }
 )
