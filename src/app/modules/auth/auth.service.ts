@@ -12,11 +12,7 @@ import config from '../../../config/config'
 
 const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   const { phoneNumber, password } = payload
-  // creating instance of User
-  // const user = new User();
-  //  // access to our instance methods
-  //   const isUserExist = await user.isUserExist(id);
-
+  
   const isUserExist = await User.isUserExist(phoneNumber)
 
   if (!isUserExist) {

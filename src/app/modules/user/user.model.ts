@@ -5,20 +5,14 @@ import bcrypt from 'bcrypt'
 // Creating a user schema
 const userSchema = new Schema<IUser>(
   {
-    phoneNumber: { type: String, required: true, unique: true },
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    phoneNumber: { type: Number, required: true, unique: true },
+    address: { type: String, required: true },
     role: { type: String, enum: ['seller', 'buyer'], required: true },
     password: { type: String, required: true, select: 0 },
-    needsPasswordChange: {
-      type: Boolean,
-      default: true,
-    },
-    name: {
-      firstName: { type: String, required: true },
-      lastName: { type: String, required: true },
-    },
-    address: { type: String, required: true },
-    budget: { type: Number, required: true },
-    income: { type: Number, required: true },
+    budget: { type: Number, default: 0 },
+    income: { type: Number, default: 0 },
   },
   {
     timestamps: true,
@@ -30,13 +24,10 @@ const userSchema = new Schema<IUser>(
 
 userSchema.statics.isUserExist = async function (
   phoneNumber: string
-): Promise<Pick<
-  IUser,
-  'phoneNumber' | 'password' | 'role' | 'needsPasswordChange'
-> | null> {
+): Promise<Pick<IUser, 'phoneNumber' | 'password' | 'role'> | null> {
   return await User.findOne(
     { phoneNumber },
-    { phoneNumber: 1, password: 1, role: 1, needsPasswordChange: 1 }
+    { phoneNumber: 1, password: 1, role: 1 }
   )
 }
 

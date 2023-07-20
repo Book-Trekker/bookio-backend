@@ -1,33 +1,27 @@
 import { Model } from 'mongoose'
 
 export type IUser = {
-  password: string
-  needsPasswordChange: true | false
-  role: string
-  name: {
-    firstName: string
-    lastName: string
-  }
-  phoneNumber: string
+  name: string
+  email: string
+  phoneNumber: number
   address: string
+  password: string
+  role: string
   budget: number
   income: number
 }
 
 export type IUserProfile = {
-  name: {
-    firstName: string
-    lastName: string
-  }
-  phoneNumber: string
+  name: string
+  phoneNumber: number
   address: string
 }
 
 export type UserModel = {
   isUserExist(
-    phoneNumber: string
+    phoneNumber: number
   ): Promise<
-    Pick<IUser, 'phoneNumber' | 'password' | 'role' | 'needsPasswordChange'>
+    Pick<IUser, 'phoneNumber' | 'password' | 'role'>
   >
   isPasswordMatched(
     givenPassword: string,
