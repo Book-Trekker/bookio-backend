@@ -9,6 +9,7 @@ import ApiError from '../../../errors/ApiError'
 import { jwtHelpers } from '../../../helpers/jwtHelper'
 import config from '../../../config/config'
 import { Secret } from 'jsonwebtoken'
+import { IAdmin } from '../admin/admin.interface'
 
 // create a new user
 const createUser: RequestHandler = catchAsync(
@@ -117,17 +118,17 @@ const getUserProfile: RequestHandler = catchAsync(
     }
 
     // Extract only the required fields from the user object
-    const userProfile: IUserProfile = {
-      name: user.name,
-      phoneNumber: user.phoneNumber,
-      address: user.address,
-    }
+    // const userProfile: IUserProfile = {
+    //   name: user.name,
+    //   phoneNumber: user.phoneNumber,
+    //   address: user.address,
+    // }
 
-    sendResponse<IUserProfile>(res, {
+    sendResponse<IUser | IAdmin>(res, {
       statusCode: httpStatus.OK,
       success: true,
       message: "User's information retrieved successfully",
-      data: userProfile,
+      data: user,
     })
   }
 )

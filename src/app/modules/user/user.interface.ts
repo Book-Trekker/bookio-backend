@@ -19,7 +19,7 @@ export type IUserProfile = {
 
 export type UserModel = {
   isUserExist(
-    phoneNumber: number
+    phoneNumber: number | string
   ): Promise<
     Pick<IUser, 'phoneNumber' | 'password' | 'role'>
   >
