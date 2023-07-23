@@ -135,42 +135,41 @@ const getUserProfile: RequestHandler = catchAsync(
 
 // update profile
 
-const updateUserProfile: RequestHandler = catchAsync(async (req: Request, res: Response) => {
-  const token = req.headers.authorization;
+const updateUserProfile: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const token = req.headers.authorization
 
-  let verifiedToken = null;
-  try {
-    verifiedToken = jwtHelpers.verifyToken(
-      token as string,
-      config.jwt.secret as Secret
-    );
-  } catch (error) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid access token');
+    let verifiedToken = null
+    try {
+      verifiedToken = jwtHelpers.verifyToken(
+        token as string,
+        config.jwt.secret as Secret
+      )
+    } catch (error) {
+      throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid access token')
+    }
+
+    const { userPhoneNumber, role } = verifiedToken
+    const updateData = req.body
+
+    const updatedUser = await userService.updateUserProfile(
+      userPhoneNumber,
+      role,
+      updateData
+    )
+
+    if (!updatedUser) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'User not found')
+    }
+
+    sendResponse<IUserProfile | IAdmin>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'User profile updated successfully!',
+      data: updatedUser,
+    })
   }
-
-  const { userPhoneNumber, role } = verifiedToken;
-  const updateData = req.body;
-
-  const updatedUser = await userService.updateUserProfile(userPhoneNumber, role, updateData);
-
-  if (!updatedUser) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
-  }
-
-  // Extract only the required fields from the updatedUser object
-  const userProfile: IUserProfile = {
-    name: updatedUser.name,
-    phoneNumber: updatedUser.phoneNumber,
-    address: updatedUser.address,
-  };
-
-  sendResponse<IUserProfile>(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'User profile updated successfully!',
-    data: userProfile,
-  });
-});
+)
 
 export const UserController = {
   createUser,
@@ -179,5 +178,5 @@ export const UserController = {
   deleteUser,
   updateUser,
   getUserProfile,
-  updateUserProfile
+  updateUserProfile,
 }
