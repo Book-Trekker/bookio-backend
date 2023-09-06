@@ -13,6 +13,8 @@ export type IBook = {
   status: string
   seller: string
   group?: string
+  description: string
+  reviews?: string[]
 }
 
 export type IBookFilters = {

@@ -22,10 +22,13 @@ const bookSchema = new Schema<IBook>(
     discountTime: { type: Schema.Types.Mixed },
     seller: {
       type: String,
+      ref: 'User',
       required: true,
     },
+    reviews: [{ type: String, default: [] }],
     group: {
       type: String,
+      default: 'Popular',
     },
   },
   {

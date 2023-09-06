@@ -178,6 +178,7 @@ const getAllBooks = async (
     andConditions.length > 0 ? { $and: andConditions } : {}
 
   const result = await Book.find(whereConditions)
+  .populate('seller', '-id')
     .sort(sortConditions)
     .skip(skip)
     .limit(limit)
