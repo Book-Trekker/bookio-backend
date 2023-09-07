@@ -8,7 +8,7 @@ router.post('/', auth(ENUM_USER_ROLE.SELLER), BookController.createBook)
 router.get('/', BookController.getAllBooks)
 
 router.post('/:id/review', BookController.addBookReview)
-// router.get('/:id/review', BookController.getAllReview)
+router.get('/:id/review', BookController.getAllReview)
 
 router.get('/:id', BookController.getSingleBook)
 router.delete('/:id', auth(ENUM_USER_ROLE.SELLER), BookController.deleteBook)

@@ -297,6 +297,23 @@ const addBookReview = async (
   }
 }
 
+// get all review
+const getAllReview = async (bookId: string): Promise<IReview[]> => {
+  try {
+    // Find the book by its ID and select only the reviews field
+    const book = await Book.findById(bookId).select('reviews')
+
+    if (!book) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Book not found')
+    }
+
+    // Return the reviews array from the book document
+    return book.reviews || []
+  } catch (error) {
+    throw error
+  }
+}
+
 export const bookService = {
   createNewBook,
   getAllBooks,
@@ -304,4 +321,5 @@ export const bookService = {
   deleteBook,
   updateBook,
   addBookReview,
+  getAllReview,
 }

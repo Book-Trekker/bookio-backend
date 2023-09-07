@@ -31,7 +31,7 @@ const bookSchema = new Schema<IBook>(
         email: { type: String, required: true },
         individualRating: { type: Number, required: true },
         userReview: { type: String, required: true },
-        date: { type: Date },
+        date: { type: Date, default: new Date() },
       },
     ],
     group: {

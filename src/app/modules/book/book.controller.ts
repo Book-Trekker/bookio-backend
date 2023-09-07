@@ -142,19 +142,21 @@ const addBookReview: RequestHandler = catchAsync(
 )
 
 //* get reviews
-// const getAllReview = catchAsync(async (req: Request, res: Response) => {
-//   const id = req.params.id;
-//   // console.log(id);
+const getAllReview: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const bookId = req.params.id
 
-//   const result = await Book.findOne({ _id: id }).select({ reviews: 1, _id: 0 });
+    // Call the getAllReviews function to retrieve the reviews
+    const reviews = await bookService.getAllReview(bookId)
 
-//   sendResponse(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: 'get all Review successfully',
-//     data: result,
-//   });
-// });
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Get all reviews successfully',
+      data: reviews,
+    })
+  }
+)
 
 export const BookController = {
   createBook,
@@ -163,4 +165,5 @@ export const BookController = {
   deleteBook,
   updateBook,
   addBookReview,
+  getAllReview,
 }
