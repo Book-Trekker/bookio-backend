@@ -3,7 +3,7 @@ import { RequestHandler } from 'express-serve-static-core'
 import httpStatus from 'http-status'
 import catchAsync from '../../../shared/catchAsync'
 import sendResponse from '../../../shared/sendResponse'
-import { IBook } from './book.interface'
+import { IBook, IReview } from './book.interface'
 import ApiError from '../../../errors/ApiError'
 import pick from '../../../shared/pick'
 import { paginationFields } from '../../../constants/pagination'
@@ -124,36 +124,37 @@ const updateBook: RequestHandler = catchAsync(
 )
 
 //* Add reviews
-const addReview = catchAsync(async (req: Request, res: Response) => {
-  const id = req.params.id
-  const addReview = req.body.reviews
-  const result = await Book.updateOne(
-    { _id: id },
-    { $push: { reviews: addReview } }
-  )
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Add Review successfully',
-    data: result,
-  })
-})
+const addBookReview: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const bookId = req.params.id
+    const reviewData: IReview = req.body
+
+    const result = await bookService.addBookReview(bookId, reviewData)
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Review added successfully!',
+      data: result,
+    })
+  }
+)
 
 //* get reviews
-const getAllReview = catchAsync(async (req: Request, res: Response) => {
-  const id = req.params.id
-  // console.log(id);
+// const getAllReview = catchAsync(async (req: Request, res: Response) => {
+//   const id = req.params.id;
+//   // console.log(id);
 
-  const result = await Book.findOne({ _id: id }).select({ reviews: 1, _id: 0 })
+//   const result = await Book.findOne({ _id: id }).select({ reviews: 1, _id: 0 });
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'get all Review successfully',
-    data: result,
-  })
-})
+//   sendResponse(res, {
+//     statusCode: httpStatus.OK,
+//     success: true,
+//     message: 'get all Review successfully',
+//     data: result,
+//   });
+// });
 
 export const BookController = {
   createBook,
@@ -161,6 +162,5 @@ export const BookController = {
   getSingleBook,
   deleteBook,
   updateBook,
-  addReview,
-  getAllReview,
+  addBookReview,
 }

@@ -25,7 +25,15 @@ const bookSchema = new Schema<IBook>(
       ref: 'User',
       required: true,
     },
-    reviews: [{ type: String, default: [] }],
+    reviews: [
+      {
+        name: { type: String, required: true },
+        email: { type: String, required: true },
+        individualRating: { type: Number, required: true },
+        userReview: { type: String, required: true },
+        date: { type: Date },
+      },
+    ],
     group: {
       type: String,
       default: 'Popular',
