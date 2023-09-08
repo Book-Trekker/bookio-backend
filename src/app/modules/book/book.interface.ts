@@ -10,7 +10,7 @@ export type IBook = {
   sellCount?: number
   category: 'science' | 'adventure' | 'romance'
   discountTime?: number | string
-  status: string
+  status?: string
   seller: string
   group?: string
   description: string
