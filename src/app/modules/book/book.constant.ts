@@ -5,8 +5,16 @@ export const bookFilterableField = [
   'category',
   'rating',
   'group',
+  'date',
 ]
 
-export const bookSearchableFields = ['name', 'author', 'category', 'rating', 'group']
+export const bookSearchableFields = [
+  'name',
+  'author',
+  'category',
+  'rating',
+  'group',
+  'date',
+]
 
-export const PriceSearchableFields = ['maxPrice', 'minPrice']
+export const PriceSearchableFields = ['maxPrice', 'minPrice', 'date']

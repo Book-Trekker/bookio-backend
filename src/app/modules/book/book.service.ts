@@ -171,7 +171,7 @@ const getAllBooks = async (
 
 const getSingleBook = async (id: string): Promise<IBook | null> => {
   try {
-    const book = await Book.findById(id)
+    const book = await Book.findById(id).populate('seller', '-id')
     return book
   } catch (error) {
     throw error

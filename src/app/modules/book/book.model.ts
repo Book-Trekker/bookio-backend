@@ -33,6 +33,9 @@ const bookSchema = new Schema<IBook>(
         userReview: { type: String, required: true },
         date: { type: Date, default: new Date() },
       },
+      {
+        timestamps: true,
+      }
     ],
     group: {
       type: String,
