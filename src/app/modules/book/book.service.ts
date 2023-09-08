@@ -1,6 +1,6 @@
 import ApiError from '../../../errors/ApiError'
 import httpStatus from 'http-status'
-import { IBook, IBookFilters, IPriceFilters } from './book.interface'
+import { IBook, IBookFilters, IPriceFilters, IReview } from './book.interface'
 import { IPaginationOptions } from '../../../interfaces/paginations'
 import { IGenericResponse } from '../../../interfaces/common'
 import { paginationHelper } from '../../../helpers/paginationHelper'
@@ -132,32 +132,6 @@ const getAllBooks = async (
     })
   }
 
-  //! Same filter in a Normal way
-  // const andConditions = [
-  //   {
-  //     $or: [
-  //       {
-  //         location: {
-  //           $regex: searchTerm,
-  //           $options: 'i',
-  //         },
-  //       },
-  //       {
-  //         breed: {
-  //           $regex: searchTerm,
-  //           $options: 'i',
-  //         },
-  //       },
-  //       {
-  //         category: {
-  //           $regex: searchTerm,
-  //           $options: 'i',
-  //         },
-  //       },
-  //     ],
-  //   },
-  // ]
-
   // Handle the "group" filter if provided
   if (filters.group) {
     andConditions.push({
@@ -178,6 +152,7 @@ const getAllBooks = async (
     andConditions.length > 0 ? { $and: andConditions } : {}
 
   const result = await Book.find(whereConditions)
+    .populate('seller', '-id')
     .sort(sortConditions)
     .skip(skip)
     .limit(limit)
@@ -196,7 +171,7 @@ const getAllBooks = async (
 
 const getSingleBook = async (id: string): Promise<IBook | null> => {
   try {
-    const book = await Book.findById(id)
+    const book = await Book.findById(id).populate('seller', '-id')
     return book
   } catch (error) {
     throw error
@@ -294,10 +269,57 @@ const updateBook = async (
   }
 }
 
+// post review
+const addBookReview = async (
+  bookId: string,
+  reviewData: IReview
+): Promise<IBook> => {
+  try {
+    // Find the book by ID
+    const book = await Book.findById(bookId)
+
+    if (!book) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Book not found')
+    }
+
+    if (!Array.isArray(book.reviews)) {
+      book.reviews = []
+    }
+    // Add the review to the book's reviews array
+    book.reviews.push(reviewData)
+
+    // Save the updated book document
+    await book.save()
+
+    return book
+  } catch (error) {
+    throw error
+  }
+}
+
+// get all review
+const getAllReview = async (bookId: string): Promise<IReview[]> => {
+  try {
+    // Find the book by its ID and select only the reviews field
+    const book = await Book.findById(bookId).select('reviews')
+
+    if (!book) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Book not found')
+    }
+
+    // Return the reviews array from the book document
+    return book.reviews || []
+  } catch (error) {
+    throw error
+  }
+}
+
 export const bookService = {
   createNewBook,
   getAllBooks,
   getSingleBook,
   deleteBook,
   updateBook,
+  addBookReview,
+  getAllReview,
 }
