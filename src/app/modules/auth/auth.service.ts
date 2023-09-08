@@ -12,7 +12,7 @@ import config from '../../../config/config'
 
 const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   const { phoneNumber, password } = payload
-  
+  //@ts-ignore
   const isUserExist = await User.isUserExist(phoneNumber)
 
   if (!isUserExist) {
