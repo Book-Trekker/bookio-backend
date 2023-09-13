@@ -36,6 +36,31 @@ const addToCart = async (cartItem: ICartItem): Promise<void> => {
   }
 }
 
+const getUsersCart = async (): Promise<ICartItem[]> => {
+  try {
+    const cart = await CartItem.find()
+      .populate('userId')
+      .populate('bookId')
+      .exec()
+    return cart
+  } catch (error) {
+    throw error
+  }
+}
+
+const deleteUserCart = async (id: string): Promise<void> => {
+  try {
+    const user = await CartItem.findByIdAndDelete(id)
+    if (!user) {
+      throw new Error('Item not found')
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 export const CartService = {
   addToCart,
+  getUsersCart,
+  deleteUserCart,
 }

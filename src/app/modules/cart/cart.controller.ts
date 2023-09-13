@@ -33,6 +33,34 @@ const addToCart: RequestHandler = catchAsync(
   }
 )
 
+const getUsersCart: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const cart = await CartService.getUsersCart()
+
+    sendResponse<ICartItem[]>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Users Cart retrieved successfully!',
+      data: cart,
+    })
+  }
+)
+
+const deleteUserCart: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const id = req.params.id
+    await CartService.deleteUserCart(id)
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'User deleted successfully!',
+    })
+  }
+)
+
 export const CartController = {
   addToCart,
+  getUsersCart,
+  deleteUserCart
 }
