@@ -3,7 +3,7 @@ import { RequestHandler } from 'express-serve-static-core'
 import httpStatus from 'http-status'
 import catchAsync from '../../../shared/catchAsync'
 import sendResponse from '../../../shared/sendResponse'
-import { IBook } from './book.interface'
+import { IBook, IReview } from './book.interface'
 import ApiError from '../../../errors/ApiError'
 import pick from '../../../shared/pick'
 import { paginationFields } from '../../../constants/pagination'
@@ -12,6 +12,7 @@ import { jwtHelpers } from '../../../helpers/jwtHelper'
 import config from '../../../config/config'
 import { Secret } from 'jsonwebtoken'
 import { bookService } from './book.service'
+import Book from './book.model'
 
 // create a new book
 const createBook: RequestHandler = catchAsync(
@@ -122,10 +123,47 @@ const updateBook: RequestHandler = catchAsync(
   }
 )
 
+//* Add reviews
+
+const addBookReview: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const bookId = req.params.id
+    const reviewData: IReview = req.body
+
+    const result = await bookService.addBookReview(bookId, reviewData)
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Review added successfully!',
+      data: result,
+    })
+  }
+)
+
+//* get reviews
+const getAllReview: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const bookId = req.params.id
+
+    // Call the getAllReviews function to retrieve the reviews
+    const reviews = await bookService.getAllReview(bookId)
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Get all reviews successfully',
+      data: reviews,
+    })
+  }
+)
+
 export const BookController = {
   createBook,
   getAllBooks,
   getSingleBook,
   deleteBook,
   updateBook,
+  addBookReview,
+  getAllReview,
 }

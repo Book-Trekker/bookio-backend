@@ -9,6 +9,7 @@ import ApiError from '../../../errors/ApiError'
 import { jwtHelpers } from '../../../helpers/jwtHelper'
 import config from '../../../config/config'
 import { Secret } from 'jsonwebtoken'
+import { IAdmin } from '../admin/admin.interface'
 
 // create a new user
 const createUser: RequestHandler = catchAsync(
@@ -117,59 +118,58 @@ const getUserProfile: RequestHandler = catchAsync(
     }
 
     // Extract only the required fields from the user object
-    const userProfile: IUserProfile = {
-      name: user.name,
-      phoneNumber: user.phoneNumber,
-      address: user.address,
-    }
+    // const userProfile: IUserProfile = {
+    //   name: user.name,
+    //   phoneNumber: user.phoneNumber,
+    //   address: user.address,
+    // }
 
-    sendResponse<IUserProfile>(res, {
+    sendResponse<IUser | IAdmin>(res, {
       statusCode: httpStatus.OK,
       success: true,
       message: "User's information retrieved successfully",
-      data: userProfile,
+      data: user,
     })
   }
 )
 
 // update profile
 
-const updateUserProfile: RequestHandler = catchAsync(async (req: Request, res: Response) => {
-  const token = req.headers.authorization;
+const updateUserProfile: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const token = req.headers.authorization
 
-  let verifiedToken = null;
-  try {
-    verifiedToken = jwtHelpers.verifyToken(
-      token as string,
-      config.jwt.secret as Secret
-    );
-  } catch (error) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid access token');
+    let verifiedToken = null
+    try {
+      verifiedToken = jwtHelpers.verifyToken(
+        token as string,
+        config.jwt.secret as Secret
+      )
+    } catch (error) {
+      throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid access token')
+    }
+
+    const { userPhoneNumber, role } = verifiedToken
+    const updateData = req.body
+
+    const updatedUser = await userService.updateUserProfile(
+      userPhoneNumber,
+      role,
+      updateData
+    )
+
+    if (!updatedUser) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'User not found')
+    }
+
+    sendResponse<IUserProfile | IAdmin>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'User profile updated successfully!',
+      data: updatedUser,
+    })
   }
-
-  const { userPhoneNumber, role } = verifiedToken;
-  const updateData = req.body;
-
-  const updatedUser = await userService.updateUserProfile(userPhoneNumber, role, updateData);
-
-  if (!updatedUser) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
-  }
-
-  // Extract only the required fields from the updatedUser object
-  const userProfile: IUserProfile = {
-    name: updatedUser.name,
-    phoneNumber: updatedUser.phoneNumber,
-    address: updatedUser.address,
-  };
-
-  sendResponse<IUserProfile>(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'User profile updated successfully!',
-    data: userProfile,
-  });
-});
+)
 
 export const UserController = {
   createUser,
@@ -178,5 +178,5 @@ export const UserController = {
   deleteUser,
   updateUser,
   getUserProfile,
-  updateUserProfile
+  updateUserProfile,
 }

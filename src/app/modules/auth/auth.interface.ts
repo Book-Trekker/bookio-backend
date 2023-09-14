@@ -1,14 +1,13 @@
 import { ENUM_USER_ROLE } from '../../../enums/user'
 
 export type ILoginUser = {
-  phoneNumber: string
+  phoneNumber: string | number
   password: string
 }
 
 export type ILoginUserResponse = {
   accessToken: string
   refreshToken?: string
-  needsPasswordChange: boolean
 }
 
 export type IRefreshTokenResponse = {

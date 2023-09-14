@@ -10,9 +10,11 @@ export type IBook = {
   sellCount?: number
   category: 'science' | 'adventure' | 'romance'
   discountTime?: number | string
-  status: string
+  status?: string
   seller: string
   group?: string
+  description: string
+  reviews?: IReview[]
 }
 
 export type IBookFilters = {
@@ -23,4 +25,12 @@ export type IBookFilters = {
 export type IPriceFilters = {
   maxPrice?: number
   minPrice?: number
+}
+
+export type IReview = {
+  name: string
+  email: string
+  individualRating: number
+  userReview: string
+  date?: Date
 }

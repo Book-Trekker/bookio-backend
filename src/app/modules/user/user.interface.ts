@@ -9,6 +9,7 @@ export type IUser = {
   role: string
   budget: number
   income: number
+  shopName: string
 }
 
 export type IUserProfile = {
@@ -19,10 +20,8 @@ export type IUserProfile = {
 
 export type UserModel = {
   isUserExist(
-    phoneNumber: number
-  ): Promise<
-    Pick<IUser, 'phoneNumber' | 'password' | 'role'>
-  >
+    phoneNumber: number | string
+  ): Promise<Pick<IUser, 'phoneNumber' | 'password' | 'role'>>
   isPasswordMatched(
     givenPassword: string,
     savedPassword: string
