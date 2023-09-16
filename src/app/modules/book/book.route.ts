@@ -1,7 +1,7 @@
 import express from 'express'
-import { BookController } from './book.controller'
 import auth from '../../middlewares/auth'
 import { ENUM_USER_ROLE } from '../../../enums/user'
+import { BookController } from './book.controller'
 const router = express.Router()
 
 router.post('/', auth(ENUM_USER_ROLE.SELLER), BookController.createBook)
