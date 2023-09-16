@@ -1,12 +1,15 @@
 export type IBook = {
   name: string
   author: string
-  image: string[]
+  image?: {
+    publicId?: string
+    url?: string
+  }[]
   discountPercentage?: number
   price: number
-  wishList?: string[]
   rating?: number
   quantity: number
+  color: string
   sellCount?: number
   category: 'science' | 'adventure' | 'romance'
   discountTime?: number | string
@@ -33,4 +36,8 @@ export type IReview = {
   individualRating: number
   userReview: string
   date?: Date
+}
+export type IWishList = {
+  userId: string
+  bookId: string
 }

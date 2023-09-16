@@ -6,12 +6,17 @@ const bookSchema = new Schema<IBook>(
   {
     name: { type: String, required: true },
     author: { type: String, required: true },
-    image: { type: [String], required: true },
+    image: [
+      {
+        publicId: { type: String },
+        url: { type: String },
+      },
+    ],
     discountPercentage: { type: Number, default: 0 },
     price: { type: Number, required: true },
-    wishList: { type: [String], default: [] },
     rating: { type: Number, default: 0 },
     quantity: { type: Number, required: true },
+    color: { type: String, default: 'normal' },
     sellCount: { type: Number },
     status: { type: String, default: 'In Stock' },
     category: {
@@ -35,7 +40,7 @@ const bookSchema = new Schema<IBook>(
       },
       {
         timestamps: true,
-      }
+      },
     ],
     group: {
       type: String,

@@ -7,6 +7,7 @@ import { AuthRoutes } from '../modules/auth/auth.route'
 import { AuthAdminRoutes } from '../modules/authAdmin/auth.route'
 import { BookRoutes } from '../modules/book/book.route'
 import { CartRoutes } from '../modules/cart/cart.route'
+import { WishListRoutes } from '../modules/wishList/wishlist.route'
 const router = express.Router()
 
 const moduleRoutes = [
@@ -41,6 +42,10 @@ const moduleRoutes = [
   {
     path: '/cart',
     route: CartRoutes,
+  },
+  {
+    path: '/wishlist',
+    route: WishListRoutes,
   },
 ]
 
