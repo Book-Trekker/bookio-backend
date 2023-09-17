@@ -6,7 +6,7 @@ const bookSchema = new Schema<IBook>(
   {
     name: { type: String, required: true },
     author: { type: String, required: true },
-    image: [
+    images: [
       {
         publicId: { type: String },
         url: { type: String },
@@ -17,7 +17,7 @@ const bookSchema = new Schema<IBook>(
     rating: { type: Number, default: 0 },
     quantity: { type: Number, required: true },
     color: { type: String, default: 'normal' },
-    sellCount: { type: Number },
+    sellCount: { type: Number, default: 0 },
     status: { type: String, default: 'In Stock' },
     category: {
       type: String,
@@ -30,12 +30,13 @@ const bookSchema = new Schema<IBook>(
       ref: 'User',
       required: true,
     },
+    description: { type: String, required: true },
     reviews: [
       {
-        name: { type: String, required: true },
-        email: { type: String, required: true },
-        individualRating: { type: Number, required: true },
-        userReview: { type: String, required: true },
+        name: { type: String },
+        email: { type: String },
+        individualRating: { type: Number },
+        userReview: { type: String },
         date: { type: Date, default: new Date() },
       },
       {

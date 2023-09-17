@@ -1,7 +1,7 @@
 export type IBook = {
   name: string
   author: string
-  image?: {
+  images?: {
     publicId?: string
     url?: string
   }[]
@@ -9,7 +9,7 @@ export type IBook = {
   price: number
   rating?: number
   quantity: number
-  color: string
+  color?: string
   sellCount?: number
   category: 'science' | 'adventure' | 'romance'
   discountTime?: number | string
