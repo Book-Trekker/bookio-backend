@@ -24,7 +24,7 @@ const userSchema = new Schema<IUser>(
 )
 
 userSchema.statics.isUserExist = async function (
-  phoneNumberOrEmail: number | string
+  phoneNumberOrEmail: string
 ): Promise<Pick<IUser, 'phoneNumber' | 'email' | 'password' | 'role'> | null> {
   return await this.findOne(
     {
