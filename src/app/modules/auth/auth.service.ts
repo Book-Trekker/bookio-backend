@@ -12,12 +12,26 @@ import config from '../../../config/config'
 
 const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   const { phoneNumber, password } = payload
-  //@ts-ignore
-  const isUserExist = await User.isUserExist(phoneNumber)
+
+  // Convert phoneNumber to string and check if it's an email
+  const phoneNumberString = phoneNumber.toString()
+
+  let isUserExist
+  if (phoneNumberString.includes('@')) {
+    isUserExist = await User.findOne({ email: phoneNumberString }).select(
+      '+password'
+    )
+  } else {
+    isUserExist = await User.findOne({ phoneNumber: phoneNumberString }).select(
+      '+password'
+    )
+  }
 
   if (!isUserExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist')
   }
+
+  console.log(isUserExist)
 
   if (
     isUserExist.password &&
@@ -25,8 +39,6 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   ) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Password is incorrect')
   }
-
-  //create access token & refresh token
 
   const { phoneNumber: userPhoneNumber, role } = isUserExist
   const accessToken = jwtHelpers.createToken(
@@ -48,8 +60,6 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
 }
 
 const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
-  //verify token
-  // invalid token - synchronous
   let verifiedToken = null
   try {
     verifiedToken = jwtHelpers.verifyToken(
@@ -62,13 +72,10 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
 
   const { userPhoneNumber } = verifiedToken
 
-  // checking deleted user's refresh token
-
   const isUserExist = await User.isUserExist(userPhoneNumber)
   if (!isUserExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist')
   }
-  //generate new token
 
   const newAccessToken = jwtHelpers.createToken(
     {

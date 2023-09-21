@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 const userValidationSchema = z.object({
   body: z.object({
-    phoneNumber: z.number({
+    phoneNumber: z.string({
       required_error: 'Phone number is required',
     }),
     role: z.enum(['seller', 'buyer'], {
