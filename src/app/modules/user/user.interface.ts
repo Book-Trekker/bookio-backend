@@ -14,13 +14,13 @@ export type IUser = {
 
 export type IUserProfile = {
   name: string
-  phoneNumber: number
+  phoneNumber: string
   address: string
 }
 
 export type UserModel = {
   isUserExist(
-    phoneNumber: number | string
+    phoneNumber: string
   ): Promise<Pick<IUser, 'phoneNumber' | 'password' | 'role'>>
   isPasswordMatched(
     givenPassword: string,
