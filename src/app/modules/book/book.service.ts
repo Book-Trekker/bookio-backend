@@ -288,6 +288,16 @@ const addBookReview = async (
     // Add the review to the book's reviews array
     book.reviews.push(reviewData)
 
+    // Calculate the new avgRating based on all individual ratings
+    const totalRatings = book.reviews.reduce(
+      (sum, review) => sum + review.individualRating,
+      0
+    )
+    const averageRating = totalRatings / book.reviews.length
+
+    // Update the book's avgRating field with the new average
+    book.avgRating = averageRating
+
     // Save the updated book document
     await book.save()
 
