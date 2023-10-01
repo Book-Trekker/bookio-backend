@@ -12,4 +12,5 @@ export type IOrder = {
   books?: { bookId: Types.ObjectId }[] | IBook[]
   buyer?: Types.ObjectId | IUser
   quantity?: number
+  orderNo?: number
 }

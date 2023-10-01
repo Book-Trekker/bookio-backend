@@ -8,6 +8,7 @@ import { jwtHelpers } from '../../../helpers/jwtHelper'
 import config from '../../../config/config'
 import { Secret } from 'jsonwebtoken'
 import Book from '../book/book.model'
+import CartItem from '../cart/cart.model'
 
 const createOrder = async (
   payload: IOrder,
@@ -16,6 +17,10 @@ const createOrder = async (
 ): Promise<IOrder> => {
   try {
     const { books, buyer, quantity } = payload
+    // console.log(buyer)
+
+    // Generate a random 5-digit order number
+    const orderNo = Math.floor(10000 + Math.random() * 90000)
 
     // Check if books array is provided
     if (!books || books.length === 0) {
@@ -100,10 +105,15 @@ const createOrder = async (
       }
 
       // Create the order
-      const createdOrder = await Order.create(payload)
+      const createdOrder = await Order.create({ ...payload, orderNo });
       const populatedOrder = await Order.findById(createdOrder._id)
         .populate('books.bookId') // Populate the book references
         .populate('buyer')
+
+      // Remove all cart items associated with the buyer
+      await CartItem.deleteMany({ userId: buyer })
+
+      // console.log('Cart items deleted successfully');
 
       await session.commitTransaction()
       session.endSession()

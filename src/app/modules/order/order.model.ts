@@ -11,6 +11,7 @@ const orderSchema = new Schema<IOrder>(
     ],
     buyer: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
     quantity: { type: Number },
+    orderNo: { type: Number },
   },
   { timestamps: true }
 )
