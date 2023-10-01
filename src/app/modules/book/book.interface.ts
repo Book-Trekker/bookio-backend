@@ -1,6 +1,7 @@
 export type IBook = {
   name: string
   author: string
+  bookId?: string
   images?: {
     publicId?: string
     url?: string

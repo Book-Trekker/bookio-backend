@@ -15,21 +15,16 @@ const createOrder = async (
   role: string
 ): Promise<IOrder> => {
   try {
-    const { book, buyer, quantity } = payload
-    // check null or undefined for quantity
+    const { books, buyer, quantity } = payload
+
+    // Check if books array is provided
+    if (!books || books.length === 0) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Books array is required')
+    }
+
+    // Check null or undefined for quantity
     if (quantity === undefined) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Quantity is required')
-    }
-
-    // check book reference id is valid or not
-    const existingBook = await Book.findById(book)
-    if (!existingBook) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid book reference ID')
-    }
-
-    // Check if the book is in stock or stock out
-    if (existingBook.quantity < quantity) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Insufficient book quantity')
     }
 
     // Verify the buyer ID using userPhoneNumber and role
@@ -41,18 +36,29 @@ const createOrder = async (
     if (!existingBuyer) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid buyer reference ID')
     }
-    // check existing order
-    // const existingOrder = await Order.findOne(payload)
-    // if (existingOrder) {
-    //   throw new ApiError(httpStatus.BAD_REQUEST, 'Already purchased this book')
-    // }
 
-    const bookPrice = existingBook.price
-    const buyerBudget = existingBuyer.budget
-    const sellerId = existingBook.seller
+    let totalBookPrice = 0 // Initialize total book price
 
-    // check buyer have enough budget to purchase this book or not
-    if (bookPrice * quantity > buyerBudget) {
+    // Iterate over the books array and handle each book
+    for (const book of books) {
+      // Check book reference id is valid or not
+      const existingBook = await Book.findById(book?.bookId)
+      if (!existingBook) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid book reference ID')
+      }
+
+      // Check if the book is in stock or stock out
+      if (existingBook.quantity < quantity) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Insufficient book quantity')
+      }
+
+      // Calculate the price for this book and add it to the total
+      const bookPrice = existingBook.price
+      totalBookPrice += bookPrice * quantity
+    }
+
+    // check buyer has enough budget to purchase these books or not
+    if (totalBookPrice > existingBuyer.budget) {
       throw new ApiError(
         httpStatus.BAD_REQUEST,
         "You don't have sufficient funds to buy these books"
@@ -64,37 +70,40 @@ const createOrder = async (
     session.startTransaction()
 
     try {
-      // Deduct the book quantity & handle book status -> stock | stock out
-      existingBook.quantity -= quantity
-      if (existingBook.quantity === 0) {
-        existingBook.status = 'stock out'
+      // Deduct the book quantities & handle book status -> stock | stock out
+      for (const book of books) {
+        const existingBook = await Book.findById(book?.bookId)
+        if (existingBook) {
+          existingBook.quantity -= quantity
+          if (existingBook.quantity === 0) {
+            existingBook.status = 'stock out'
+          }
+          await existingBook.save()
+        }
       }
-      await existingBook.save()
 
-      // Deduct book cost from the buyer's budget
-      existingBuyer.budget -= bookPrice * quantity
+      // Deduct the total book cost from the buyer's budget
+      existingBuyer.budget -= totalBookPrice
       await existingBuyer.save()
 
-      // Increase seller's income by the book cost
-      const existingSeller = await User.findById(sellerId)
-      if (!existingSeller) {
-        throw new Error('Seller not found')
+      // Increase seller's income by the total book cost
+      for (const book of books) {
+        const existingBook = await Book.findById(book?.bookId)
+        if (existingBook) {
+          const existingSeller = await User.findById(existingBook.seller)
+          if (!existingSeller) {
+            throw new Error('Seller not found')
+          }
+          existingSeller.income += existingBook.price * quantity
+          await existingSeller.save()
+        }
       }
-      existingSeller.income += bookPrice * quantity
-      await existingSeller.save()
 
       // Create the order
       const createdOrder = await Order.create(payload)
       const populatedOrder = await Order.findById(createdOrder._id)
-        .populate('book')
+        .populate('books.bookId') // Populate the book references
         .populate('buyer')
-        .populate({
-          path: 'book',
-          populate: {
-            path: 'seller',
-            model: 'User',
-          },
-        })
 
       await session.commitTransaction()
       session.endSession()
@@ -128,10 +137,10 @@ const getOrders = async (token: string): Promise<IOrder[]> => {
     if (role === 'admin') {
       // If the role is "admin", retrieve all orders
       orders = await Order.find({})
-        .populate('book')
+        .populate('books.bookId')
         .populate('buyer')
         .populate({
-          path: 'book',
+          path: 'books',
           populate: {
             path: 'seller',
             model: 'User',
@@ -149,10 +158,10 @@ const getOrders = async (token: string): Promise<IOrder[]> => {
       }
 
       orders = await Order.find({ buyer: buyer._id })
-        .populate('book')
+        .populate('books.bookId')
         .populate('buyer')
         .populate({
-          path: 'book',
+          path: 'books',
           populate: {
             path: 'seller',
             model: 'User',
@@ -171,7 +180,7 @@ const getOrders = async (token: string): Promise<IOrder[]> => {
 
       orders = await Order.find({})
         .populate({
-          path: 'book',
+          path: 'books',
           match: { seller: seller._id },
           populate: {
             path: 'seller',
@@ -206,10 +215,10 @@ const getSingleOrder = async (
     if (role === 'admin') {
       // If the role is "admin", retrieve the order without any conditions
       order = await Order.findById(id)
-        .populate('book')
+        .populate('books.bookId')
         .populate('buyer')
         .populate({
-          path: 'book',
+          path: 'books',
           populate: {
             path: 'seller',
             model: 'User',
@@ -227,10 +236,10 @@ const getSingleOrder = async (
       }
 
       order = await Order.findOne({ _id: id, buyer: buyer._id })
-        .populate('book')
+        .populate('books.bookId')
         .populate('buyer')
         .populate({
-          path: 'book',
+          path: 'books',
           populate: {
             path: 'seller',
             model: 'User',
@@ -249,7 +258,7 @@ const getSingleOrder = async (
 
       order = await Order.findOne({ _id: id })
         .populate({
-          path: 'book',
+          path: 'books',
           match: { seller: seller._id },
           populate: {
             path: 'seller',

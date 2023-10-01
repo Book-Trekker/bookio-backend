@@ -10,7 +10,7 @@ const router = express.Router()
 router.post(
   '/',
   auth(ENUM_USER_ROLE.BUYER),
-  validateRequest(orderValidation.orderValidationSchema),
+  // validateRequest(orderValidation.orderValidationSchema),
   OrderController.createOrder
 )
 router.get(
