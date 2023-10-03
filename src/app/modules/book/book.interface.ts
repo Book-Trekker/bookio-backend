@@ -1,6 +1,8 @@
 export type IBook = {
   name: string
   author: string
+  bookId?: string
+  // orderNo?: number
   images?: {
     publicId?: string
     url?: string
@@ -8,6 +10,7 @@ export type IBook = {
   discountPercentage?: number
   price: number
   rating?: number
+  avgRating?: number
   quantity: number
   color?: string
   sellCount?: number

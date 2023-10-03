@@ -15,6 +15,7 @@ const bookSchema = new Schema<IBook>(
     discountPercentage: { type: Number, default: 0 },
     price: { type: Number, required: true },
     rating: { type: Number, default: 0 },
+    avgRating: { type: Number, default: 0 },
     quantity: { type: Number, required: true },
     color: { type: String, default: 'normal' },
     sellCount: { type: Number, default: 0 },
